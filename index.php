@@ -1,9 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-
     // connect to the database 
    $servername = "localhost";
    $username = "root";
@@ -108,44 +103,7 @@ error_reporting(E_ALL);
                 $conn->close();
               ?>
 
-                <!-- <div class="card mt-5">
-                    <div class="card-header">Post 1</div>
-                        <div class="card-body">
-                        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                         Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-                         when an unknown printer took a galley of type and scrambled it to make a type specimen book
-                         . It has survived not only five centuries, 
-                         but also the leap into electronic typesetting, 
-                        </div>
-                        <div class="card-header">Like: <i class="fa-solid fa-thumbs-up" id="1" ></i></div>
-                </div>
-                <hr>
-
-                <div class="card mt-3">
-                    <div class="card-header">Post 2</div>
-                        <div class="card-body">
-                        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                         Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-                         when an unknown printer took a galley of type and scrambled it to make a type specimen book
-                         . It has survived not only five centuries, 
-                         but also the leap into electronic typesetting,
-                        </div>
-                        <div class="card-header">Like: <i class="fa-solid fa-thumbs-up"  id="2"></i></div> 
-                </div>
-                <hr>
-                <div class="card mt-3">
-                    <div class="card-header">Post 3</div>
-                        <div class="card-body">
-                        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                         Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-                         when an unknown printer took a galley of type and scrambled it to make a type specimen book
-                         . It has survived not only five centuries, 
-                         but also the leap into electronic typesetting, 
-                        </div>
-                        <div class="card-header">Like: <i class="fa-solid fa-thumbs-up" id="3"></i></div>
-                </div>
-             </div> -->
-
+                
            
              
              <div id="result" class="row justify-content-center">  
@@ -155,13 +113,6 @@ error_reporting(E_ALL);
    </div>
 </body>
 </html>
-
-<script>
-   function liked_icon(id) {
-       let liked = <?= $row['is_liked']; ?>;
-   }
-
-</script>
 
 <script>
     $(document).ready(function(){
