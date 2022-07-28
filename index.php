@@ -22,15 +22,16 @@
     $post_id = $_POST['post_id'];
    
         // make update query to invert the like status
-        $sql_update = "UPDATE likes SET is_liked = NOT is_liked WHERE id = '$post_id'";
+        $sql_update = "UPDATE likes SET total_likes = total_likes + 1 , is_liked = NOT is_liked WHERE id = '$post_id'";
         $result = $conn->query($sql_update);
 
-        $sql = "SELECT is_liked FROM likes where post_id = '$post_id' ";
+        $sql = "SELECT is_liked, total_likes FROM likes where post_id = '$post_id' ";
         $result = $conn->query($sql);
         if ($result->num_rows != 0) {
             while($row = $result->fetch_assoc()){
         //send updated value to frontend
                $data["is_liked"] = $row['is_liked'];
+               $data["total_likes"] = $row['total_likes'];
                 $data["post_id"] = $post_id;
                 // echo $data['is_liked'];
                 // echo $data['post_id'];
@@ -82,7 +83,7 @@
              <div class="col-md-8">
 
              <?php
-             $sql = "SELECT is_liked, post_id, post FROM likes";
+             $sql = "SELECT is_liked, post_id, post, total_likes FROM likes";
              $result = $conn->query($sql);  
              while($row = $result->fetch_assoc()) {     
                 
@@ -92,22 +93,20 @@
                 echo $row['post'];
                 echo "</div>";
                 if ($row['is_liked'] == 1) {
-                    echo '<div class="card-header">Like: <i class="fa-solid fa-thumbs-up" style="color:red" id="'.$row["post_id"].'"></i></div>';
+                    echo '<div class="card-header">Like: <i class="fa-solid fa-thumbs-up" style="color:red" id="'.$row["post_id"].'"></i>
+                    <span id = "likes'.$row["post_id"].'" style="float:right">Total Likes/Unlikes: '.$row['total_likes'].'</span>
+                    </div>';
                 }
                 else
                 {
-                    echo '<div class="card-header">Like: <i class="fa-solid fa-thumbs-up" id="'.$row["post_id"].'"></i></div>';
+                    echo '<div class="card-header">Like: <i class="fa-solid fa-thumbs-up" id="'.$row["post_id"].'"></i>
+                    <span id = "likes'.$row["post_id"].'" style="float:right">Total Likes/Unlikes: '.$row['total_likes'].'</span>
+                    </div>';
                 }
                 echo '</div><hr>';
              }
                 $conn->close();
               ?>
-
-                
-           
-             
-             <div id="result" class="row justify-content-center">  
-             </div>
 
         </div>
    </div>
@@ -122,7 +121,14 @@
                 post_id: post_id
             }, function(data,status){
                 // $("#result").html(data);
+                
+                // parse json data from the server 
                 data = JSON.parse(data);
+
+                // get the total likes field updated 
+                $('#likes'+post_id).html('Total Likes/Unlikes: '+ data.total_likes);
+
+                // change the likes button color depending on the status 
                 if(data.is_liked == 1){
                     $('#'+post_id).css('color','red');  
                 }    
