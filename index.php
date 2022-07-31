@@ -1,4 +1,19 @@
 <?php
+session_start();
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+ 
+    if (!isset($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(10));
+    }
+    
+    require __DIR__ . '/vendor/autoload.php';
+    use Carbon\Carbon;
+
+
     // connect to the database 
    $servername = "localhost";
    $username = "root";
@@ -13,16 +28,13 @@
    }
 
    //get the current status and fetch them on page load 
-   
 
-
-
-   // get post_id from ajax and process
+   // get post_id from ajax and process 
    if (!empty($_POST['post_id'])) {
     $post_id = $_POST['post_id'];
    
         // make update query to invert the like status
-        $sql_update = "UPDATE likes SET total_likes = total_likes + 1 , is_liked = NOT is_liked WHERE id = '$post_id'";
+        $sql_update = "UPDATE likes SET total_likes = total_likes + 1 , is_liked = NOT is_liked WHERE post_id = '$post_id'";
         $result = $conn->query($sql_update);
 
         $sql = "SELECT is_liked, total_likes FROM likes where post_id = '$post_id' ";
@@ -47,7 +59,48 @@
    }
    $conn->close();
    }    
+
+
+   function shortNumber($num) 
+{
+    $units = ['', 'K', 'M', 'B', 'T'];
+    for ($i = 0; $num >= 1000; $i++) {
+        $num /= 1000;
+    }
+    return round($num, 1) . $units[$i];
+}
  
+// Handle the add post form 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+    
+    if($_POST['csrf'] === $_SESSION['csrf'])
+   { 
+    $email = filter_data($_POST['email']);
+    $post = filter_data($_POST['post']);
+    $time = Carbon::now();
+
+     // add to database
+     $sql_add = "INSERT INTO likes (`email`, `post`, `created_at`) VALUES ('$email', '$post', '$time')";
+     $result = $conn->query($sql_add);
+     header('location:./');
+    }
+    else{
+        echo "Invalid request";
+        exit();
+    }
+   
+
+}
+
+function filter_data($data){
+    if (empty($data)) {
+        exit('please fill all the required data');
+    }
+    trim($data);
+    htmlspecialchars($data);
+    stripslashes($data);
+    return $data;
+}
 ?>
 
 <!DOCTYPE html>
@@ -78,17 +131,54 @@
 
 </style>
 <body>
-   <div class="container">
+    <!-- MODAL  -->
+<!-- Button trigger modal -->
+<!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  Launch demo modal
+</button> -->
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Post</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']);?>" method="POST">
+       <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">Email address</label>
+        <input type="email" class="form-control" name="email" placeholder="name@example.com">
+        </div>
+        <div class="mb-3">
+        <label for="exampleFormControlTextarea1" class="form-label">Post content</label>
+        <textarea class="form-control" name="post" rows="3" style="resize: none;"></textarea>
+        </div>
+        <input type="hidden" class="form-control" name="csrf" value="<?= $_SESSION['csrf']; ?>">
+      </div>
+      <div class="modal-footer">
+          <button type="submit" name="submit" class="btn btn-primary">Post</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- MODAL END  -->
+        <div class="container">
          <div class="row justify-content-center">
-             <div class="col-md-8">
+             <div class="col-lg-6">
+            
+            <button class="btn btn-success mt-5" data-bs-toggle="modal" data-bs-target="#exampleModal">+ Add Post</button>
 
              <?php
-             $sql = "SELECT is_liked, post_id, post, total_likes FROM likes";
+             $sql = "SELECT is_liked, post_id, post, total_likes, created_at FROM likes";
              $result = $conn->query($sql);  
              while($row = $result->fetch_assoc()) {     
-                
-                echo '<div class="card mt-5">';
-                echo '<div class="card-header">Post' .$row["post_id"]. '</div>';
+                echo '<div class="card mt-2">';
+                echo '<div class="card-header"><b>Post ' .$row["post_id"].'</b>
+                <span style="float:right; color:tomato;">'.Carbon::parse($row['created_at'])->diffForHumans().'</span></div>';
                 echo '<div class="card-body">';
                 echo $row['post'];
                 echo "</div>";
@@ -110,6 +200,7 @@
 
         </div>
    </div>
+        </div>
 </body>
 </html>
 
