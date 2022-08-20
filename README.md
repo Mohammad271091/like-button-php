@@ -1,6 +1,11 @@
 # like-button-php
 facebook-like Like button with php, ajax, and mysql
 
+|-------------------------------------------
+|DEMO: http://fb-likes.epizy.com/
+|===========================================
+
+
 This is a sample code for a facebook-like Like button made with PHP [native], and Ajax to prevent page refresh with every request.
 The page will show the last status of the like button and the number of clicks in real time (without refresh) but only from the local user.
 
