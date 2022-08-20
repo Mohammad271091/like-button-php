@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+// for debugging (comment on production)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -10,6 +11,7 @@ error_reporting(E_ALL);
         $_SESSION['csrf'] = bin2hex(random_bytes(10));
     }
     
+
     require __DIR__ . '/vendor/autoload.php';
     use Carbon\Carbon;
 
